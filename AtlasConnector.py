@@ -1,22 +1,21 @@
-import requests, json, pymongo
+import requests, json
 from requests.auth import HTTPDigestAuth
 
 class AtlasConnector():
 
-    def __init__(self, connection_string, projectId, public_key, private_key):
+    def __init__(self, projectId: str, public_key: str, private_key: str) -> None:
         self.public_key = public_key
         self.private_key = private_key
         self.projectId = projectId
-        self.client = pymongo.MongoClient(connection_string)
 
         self.base_url = "https://cloud.mongodb.com/api/atlas/v1.0"
-        self.resource_path = "/groups/" + projectId + "/databaseUsers"
-
-        self.REQUEST_URL = self.base_url + self.resource_path
         self.AUTHENTICATION = HTTPDigestAuth(public_key, private_key)
 
 
-    def create_dbList(self, user_list, cluster_name):
+    def add_users_to_db_list(self, user_list: list, cluster_name: str) -> None:
+        resource_path = "/groups/" + self.projectId + "/databaseUsers"
+        REQUEST_URL = self.base_url + resource_path
+
         for user in user_list:
 
             request_body = json.dumps({
@@ -36,72 +35,22 @@ class AtlasConnector():
 
             headers = {'Content-Type': 'application/json'}
 
-            r = requests.post(self.REQUEST_URL, auth=self.AUTHENTICATION, data=request_body, headers=headers)
+            resp = requests.post(REQUEST_URL, auth=self.AUTHENTICATION, data=request_body, headers=headers)
 
-            print("------------------")
-            print("Just added " + user)
-            print("------------------")
+            if resp.status_code == 201:
+                print("------------------")
+                print("CREATED user " + user)
+                print("------------------")
 
-        print("Success: create_dbList()")
+    def delete_users(self, user_list: list) -> None:
+        resource_path = "/groups/" + self.projectId + "/databaseUsers/admin/"
+        REQUEST_URL = self.base_url + resource_path
 
-    def create_userCollection(self, user_list):
         for user in user_list:
-            ############################################
-            # This block pushes the data from sample_analytics.customers and
-            # sample_analytics.transactions collection into 2 collections for
-            # each user in the user_list
-            sample_analytics = self.client["sample_analytics"]
 
-            customers = sample_analytics["customers"]
-            customers_aggregation = [
-                {
-                    "$out": {
-                        "db": user,
-                        "coll": "customers"
-                    }
-                }
-            ]
-            customers.aggregate(customers_aggregation)
+            resp = requests.delete(REQUEST_URL + user, auth=self.AUTHENTICATION)
 
-            transactions = sample_analytics["transactions"]
-            transactions_aggregation = [
-                {
-                    "$out": {
-                        "db": user,
-                        "coll": "transactions"
-                    }
-                }
-            ]
-            transactions.aggregate(transactions_aggregation)
-            ############################################
-            # This block pushes the data from sample_analytics.customers and
-            # sample_analytics.transactions collection into 2 collections for
-            # each user in the user_list
-            sample_mflix = self.client["sample_mflix"]
-
-            movies = sample_mflix["movies"]
-            movies_aggregation = [
-                {
-                    "$out": {
-                        "db": user,
-                        "coll": "movies"
-                    }
-                }
-            ]
-            movies.aggregate(movies_aggregation)
-
-            comments = sample_mflix["comments"]
-            comments_aggregation = [
-                {
-                    "$out": {
-                        "db": user,
-                        "coll": "comments"
-                    }
-                }
-            ]
-            comments.aggregate(comments_aggregation)
-            ############################################
-
-        print("Success: create_userCollection()")
-
-
+            if resp.status_code == 204:
+                print("------------------")
+                print("DELETED user " + user)
+                print("------------------")
