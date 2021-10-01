@@ -4,19 +4,17 @@ from MongoDBConnector import *
 # GLOBAL VARIABLES
 # Keys to authenticate to the Atlas Project
 # Project Permissions = "Project Owner"
-connection_string = "mongodb+srv://admin:admin@cluster0.qx9qh.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
+connection_string = "xxxxxxxxxx"
 # Project Permissions = "Project Owner"
-public_key = 'bdanaqjk'
-private_key = 'b2fa0d4b-55be-458b-a4ab-48aab0e7a671'
-projectId = '5f281a8bc4ccb250e2faf829'
+public_key = 'xxxxxxxxxx'
+private_key = 'xxxxxxxxxx'
+projectId = 'xxxxxxxxxx'
 
 # Name of the cluster and list of the students
-cluster_name = "Cluster0"
+cluster_name = "xxxxxxxxxx"
 user_list = {
 # Put the user list here
 # Usernames can only comprise of [A-Z][a-z][0-9]
-    "test",
-    "test2"
 }
 
 database_dict = {
